@@ -11,11 +11,7 @@ import com.mcit.contacts.pojo.Contact;
 @Repository
 public class ContactRepository {
     
-    private List<Contact> contacts = Arrays.asList(
-            new Contact("123","Ahmad","785422215"),
-            new Contact("125","Mahmood","700814752"),
-            new Contact("127","Karim","798521452")
-    );
+    private List<Contact> contacts = new ArrayList<>();
 
     public List<Contact> getContacts() {
         return contacts;
