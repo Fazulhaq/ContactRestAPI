@@ -1,5 +1,6 @@
 package com.mcit.contacts.web;
 
+import com.mcit.contacts.Constants;
 import com.mcit.contacts.pojo.Contact;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -8,14 +9,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import com.mcit.contacts.service.ContactService;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.BitSet;
 import java.util.List;
 
 @RestController
@@ -31,8 +35,12 @@ public class ContactController {
     })
     @GetMapping(value = "/contact/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Contact> getContactById(@PathVariable String id){
-        Contact contact = contactService.getContactById(id);
-        return new ResponseEntity<>(contact, HttpStatus.OK);
+        if (contactService.getIndexOfId(id) == Constants.Not_Found){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }else {
+            Contact contact = contactService.getContactById(id);
+            return new ResponseEntity<>(contact, HttpStatus.OK);
+        }
     }
     @Operation(summary = "Get all contacts", description = "Get all the contact in the list")
     @ApiResponse(responseCode = "200", description = "Successful retrieval of contacts", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Contact.class))))
@@ -47,9 +55,13 @@ public class ContactController {
             @ApiResponse(responseCode = "400", description = "Unsuccessful operation on adding contact", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Exception.class))))
     })
     @PostMapping("/contact")
-    public ResponseEntity<HttpStatus> createContact(@RequestBody Contact contact){
-        contactService.addContact(contact);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<HttpStatus> createContact(@Valid @RequestBody Contact contact, BindingResult result){
+        if (result.hasErrors()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }else {
+            contactService.addContact(contact);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }
     }
     @Operation(summary = "Edit a contact", description = "Give the id and data and it will update based on that id")
     @PutMapping(value = "/updatecontact/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

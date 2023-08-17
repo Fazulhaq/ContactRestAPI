@@ -1,16 +1,26 @@
 package com.mcit.contacts.pojo;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.UUID;
 
 public class Contact {
-
+    @NotBlank(message = "Id should not be null")
     private String id;
+    @NotBlank(message = "Name should not be null")
     private String name;
+    @NotBlank(message = "Phone Number should not be null")
     private String phoneNumber;
 
 
     public Contact() {
         this.id = UUID.randomUUID().toString();
+    }
+
+    public Contact(String id, String name, String phoneNumber) {
+        this.id = id;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
     }
 
     public String getName() {
